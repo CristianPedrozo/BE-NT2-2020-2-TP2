@@ -2,9 +2,13 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { vibrate } from './utils'
+import BotonGenerico from './components/botonGenerico.js'
+import Reloj from './components/reloj.js'
 
 //Inicio la variable que me va a permitir manejar el timer
 let invervalo = null;
+
+//Inicio la variable para contar los segundos
 let contador = 5;
 
 export default function App() {
@@ -13,6 +17,9 @@ export default function App() {
   const [estado, setEstado] = useState(false);
   const [modoTrabajo, setModoTrabajo] = useState(true);
   const [estadoTexto, setEstadoTexto] = useState("trabajo");
+  const [btnEmpezarHabilitado, setbtnEmpezarHabilitado] = useState(true);
+  const [btnDetenerHabilitado, setbtnDetenerHabilitado] = useState(false);
+
 
   //Seteo un efecto al cambiar el estado del cronometro
   useEffect(() => {
@@ -38,7 +45,8 @@ export default function App() {
       setSegundos(3)
     }
   }, [modoTrabajo]);
-//Seteo un efecto para
+
+//Seteo un efecto para controlar el cambio de modo y la vibracion
   useEffect(() => {
     if (contador == 0) {
       vibrate();
@@ -47,7 +55,8 @@ export default function App() {
       setModoTrabajo(!modoTrabajo)
     }
   },[segundos])
-  
+
+  //Funcion para reiniciar los contadores
   const reiniciar = () => {
     if (estado) {
       setEstado(false);
@@ -57,41 +66,30 @@ export default function App() {
     } else {
       setSegundos(contador);
     }
+    setbtnDetenerHabilitado(false)
+    setbtnEmpezarHabilitado(true)
     setModoTrabajo(true);
-  }
-
-  const obtenerTextoTiempo = () => {
-    var minutos = Math.floor(segundos / 60);
-    var seg = segundos - minutos * 60;
-    return minutos + ":" + seg
   }
 
   const habilitarReloj = () => {
     setEstado(true)
+    setbtnEmpezarHabilitado(false);
+    setbtnDetenerHabilitado(true)
   }
 
   const deshabilitarReloj = () => {
     setEstado(false)
+    setbtnDetenerHabilitado(false)
+    setbtnEmpezarHabilitado(true)
   }
-
-
-
 
   return (
     <View style={styles.container}>
-      <Text>Te quedan {obtenerTextoTiempo()} de {estadoTexto}</Text>
-      <Button
-        title="Empezar"
-        onPress={vibrate, habilitarReloj}
-      />
-      <Button
-        title="Detener"
-        onPress={vibrate, deshabilitarReloj}
-      />
-      <Button
-        title="Reiniciar"
-        onPress={vibrate, reiniciar}
-      />
+      <Text>Es hora de {estadoTexto}</Text>
+      <Reloj seg= {segundos}/>
+      <BotonGenerico titulo ={"Empezar"} funcionCallback = {habilitarReloj} habilitado = {btnEmpezarHabilitado} />
+      <BotonGenerico titulo ={"Detener"} funcionCallback = {deshabilitarReloj} habilitado = {btnDetenerHabilitado} />
+      <BotonGenerico titulo ={"Reiniciar"} funcionCallback = {reiniciar} habilitado = {true} />
       <StatusBar style="auto" />
     </View>
   );
